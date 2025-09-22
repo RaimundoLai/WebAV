@@ -53,6 +53,9 @@ export abstract class BaseSprite {
     propsChange: (
       value: Partial<{ rect: Partial<Rect>; zIndex: number }>,
     ) => void;
+    propsChangeEnd: (
+      value: Partial<{ rect: Partial<Rect>; zIndex: number }>,
+    ) => void;
   }>();
   /**
    * 监听属性变更事件
@@ -98,6 +101,24 @@ export abstract class BaseSprite {
     this.rect.on('propsChange', (props) => {
       this.#evtTool.emit('propsChange', { rect: props });
     });
+  }
+
+  /**
+   * 觸發 propsChangeEnd 事件
+   *
+   * 對於互動式元件，此函式應在互動完成時（例如 mouseup、touchup）呼叫
+   *
+   * @example
+   * canvas.on('mouseup', () => {
+   * sprite.emitPropsChangeEnd()
+   * })
+   */
+  emitPropsChangeEnd() {
+    const changedRectProps = this.rect.getChangedProps();
+    if (Object.keys(changedRectProps).length > 0) {
+      this.#evtTool.emit('propsChangeEnd', { rect: changedRectProps });
+      this.rect.resetChangedProps();
+    }
   }
 
   protected _render(
@@ -216,7 +237,8 @@ export function linearTimeFn(
   const progress =
     offsetTime / opts.duration >= opts.iterCount || offsetTime === opts.duration
       ? 1
-      : t / opts.duration;
+      : // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        t / opts.duration;
 
   const idx = kf.findIndex((it) => it[0] >= progress);
   if (idx === -1) return {};

@@ -104,7 +104,8 @@ export class AVCanvas {
     if (ctx == null) throw Error('canvas context is null');
     this.#cvsCtx = ctx;
     const container = createEl('div');
-    container.style.cssText = 'width: 100%; height: 100%; position: relative;';
+    container.style.cssText =
+      'width: 100%; height: 100%; position: relative; touch-action: none;';
     container.appendChild(this.#cvsEl);
     attchEl.appendChild(container);
 

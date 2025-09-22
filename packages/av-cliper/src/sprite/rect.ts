@@ -88,8 +88,12 @@ export class Rect implements IRectBaseProps {
     this.#setBaseProps('angle', v);
   }
 
+  #changedProps: Partial<IRectBaseProps> = {};
+
   #setBaseProps(prop: keyof IRectBaseProps, v: number) {
     const changed = this[prop] !== v;
+    if (!changed) return;
+
     switch (prop) {
       case 'x':
         this.#x = v;
@@ -107,6 +111,7 @@ export class Rect implements IRectBaseProps {
         this.#angle = v;
         break;
     }
+    this.#changedProps[prop] = v;
     if (changed) this.#evtTool.emit('propsChange', { [prop]: v });
   }
 
@@ -193,5 +198,13 @@ export class Rect implements IRectBaseProps {
     if (mx < x || mx > x + w || my < y || my > y + h) return false;
 
     return true;
+  }
+
+  getChangedProps(): Partial<IRectBaseProps> {
+    return this.#changedProps;
+  }
+
+  resetChangedProps(): void {
+    this.#changedProps = {};
   }
 }

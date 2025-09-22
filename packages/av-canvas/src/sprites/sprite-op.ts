@@ -66,7 +66,7 @@ export function draggabelSprite(
 
     startX = clientX;
     startY = clientY;
-    window.addEventListener('pointermove', onMouseMove);
+    window.addEventListener('pointermove', onMouseMove, { passive: false });
     window.addEventListener('pointerup', clearWindowEvt);
 
     evt.stopPropagation();
@@ -74,6 +74,7 @@ export function draggabelSprite(
 
   const cvsRatio = getCvsRatio(cvsEl);
   const onMouseMove = (evt: MouseEvent): void => {
+    evt.preventDefault();
     const hitSpr = sprMng.activeSprite;
     if (
       hitSpr == null ||
@@ -83,8 +84,8 @@ export function draggabelSprite(
       return;
 
     const { clientX, clientY } = evt;
-    let expectX = startRect.x + (clientX - startX) / cvsRatio.w;
-    let expectY = startRect.y + (clientY - startY) / cvsRatio.h;
+    const expectX = startRect.x + (clientX - startX) / cvsRatio.w;
+    const expectY = startRect.y + (clientY - startY) / cvsRatio.h;
 
     updateRectWithSafeMargin(
       hitSpr.rect,
@@ -94,6 +95,8 @@ export function draggabelSprite(
   };
 
   const clearWindowEvt = (): void => {
+    sprMng.activeSprite?.emitPropsChangeEnd();
+
     refline.hide();
     window.removeEventListener('pointermove', onMouseMove);
     window.removeEventListener('pointerup', clearWindowEvt);
@@ -141,6 +144,7 @@ function setupCtrlEvents(
         rotateRect(
           hitSpr.rect,
           cntMap2Outer(hitSpr.rect.center, cvsRatio, cvsEl),
+          sprMng,
         );
       } else {
         scaleRect({
@@ -150,6 +154,7 @@ function setupCtrlEvents(
           startY: clientY,
           cvsRatio,
           cvsEl,
+          sprMng,
         });
       }
 
@@ -226,6 +231,7 @@ function scaleRect({
   ctrlKey,
   cvsRatio,
   cvsEl,
+  sprMng,
 }: {
   sprRect: Rect;
   startX: number;
@@ -233,10 +239,12 @@ function scaleRect({
   ctrlKey: TCtrlKey;
   cvsRatio: ICvsRatio;
   cvsEl: HTMLCanvasElement;
+  sprMng: SpriteManager;
 }): void {
   const startRect = sprRect.clone();
 
   const onMouseMove = (evt: MouseEvent): void => {
+    evt.preventDefault();
     const { clientX, clientY } = evt;
     const deltaX = (clientX - startX) / cvsRatio.w;
     const deltaY = (clientY - startY) / cvsRatio.h;
@@ -259,9 +267,9 @@ function scaleRect({
     let newW = w;
     let newH = h;
     // 中心点缩放时，宽高增量是原来的两倍
-    let newIncW = startRect.fixedScaleCenter ? incW * 2 : incW;
-    let newIncH = startRect.fixedScaleCenter ? incH * 2 : incH;
     // 最小长度缩放限定
+    const newIncW = startRect.fixedScaleCenter ? incW * 2 : incW;
+    const newIncH = startRect.fixedScaleCenter ? incH * 2 : incH;
     let newIncS = incS;
     // 起始对角线长度
     const startS = Math.sqrt(h ** 2 + w ** 2);
@@ -322,10 +330,12 @@ function scaleRect({
   };
 
   const clearWindowEvt = (): void => {
+    sprMng.activeSprite?.emitPropsChangeEnd();
+
     window.removeEventListener('pointermove', onMouseMove);
     window.removeEventListener('pointerup', clearWindowEvt);
   };
-  window.addEventListener('pointermove', onMouseMove);
+  window.addEventListener('pointermove', onMouseMove, { passive: false });
   window.addEventListener('pointerup', clearWindowEvt);
 }
 
@@ -407,9 +417,10 @@ function fixedRatioScale({
  * 监听拖拽事件，将鼠标坐标转换为旋转角度
  * 旋转时，rect的坐标不变
  */
-function rotateRect(rect: Rect, outCnt: IPoint): void {
-  const onMove = ({ clientX, clientY }: MouseEvent): void => {
-    // 映射为 中心点坐标系
+function rotateRect(rect: Rect, outCnt: IPoint, sprMng: SpriteManager): void {
+  const onMove = (evt: MouseEvent): void => {
+    evt.preventDefault();
+    const { clientX, clientY } = evt;
     const x = clientX - outCnt.x;
     const y = clientY - outCnt.y;
     // 旋转控制点在正上方，与 x 轴是 -90°， 所以需要加上 Math.PI / 2
@@ -417,10 +428,12 @@ function rotateRect(rect: Rect, outCnt: IPoint): void {
     rect.angle = angle;
   };
   const clear = (): void => {
+    sprMng.activeSprite?.emitPropsChangeEnd();
+
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', clear);
   };
-  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointermove', onMove, { passive: false });
   window.addEventListener('pointerup', clear);
 }
 

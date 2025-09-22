@@ -3,6 +3,7 @@ import { EventTool } from '@webav/internal-utils';
 
 export enum ESpriteManagerEvt {
   ActiveSpriteChange = 'activeSpriteChange',
+  ActiveSpriteUp = 'activeSpriteUp',
   AddSprite = 'addSprite',
 }
 
@@ -14,6 +15,7 @@ export class SpriteManager {
   #evtTool = new EventTool<{
     [ESpriteManagerEvt.AddSprite]: (s: VisibleSprite) => void;
     [ESpriteManagerEvt.ActiveSpriteChange]: (s: VisibleSprite | null) => void;
+    [ESpriteManagerEvt.ActiveSpriteUp]: (s: VisibleSprite | null) => void;
   }>();
 
   on = this.#evtTool.on;
@@ -36,6 +38,10 @@ export class SpriteManager {
           (s) =>
             s.visible && s.interactable !== 'disabled' && s.rect.checkHit(x, y),
         ) ?? null;
+  }
+
+  activeSpriteUp(): void {
+    this.#evtTool.emit(ESpriteManagerEvt.ActiveSpriteUp, this.#activeSprite);
   }
 
   async addSprite(vs: VisibleSprite): Promise<void> {

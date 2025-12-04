@@ -1,5 +1,25 @@
 # @webav/av-cliper
 
+## 1.2.7
+
+### Patch Changes
+
+- 82eb892: feat: add AudioClip.concatAudioClip
+  - @webav/internal-utils@1.2.7
+
+## 1.2.6
+
+### Patch Changes
+
+- 5c4c275: feat: Combinator.ouput support maxTime
+  - @webav/internal-utils@1.2.6
+
+## 1.2.5
+
+### Patch Changes
+
+- @webav/internal-utils@1.2.5
+
 ## 1.2.4
 
 ### Patch Changes

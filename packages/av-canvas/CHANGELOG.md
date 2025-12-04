@@ -1,5 +1,29 @@
 # @webav/av-canvas
 
+## 1.2.7
+
+### Patch Changes
+
+- Updated dependencies [82eb892]
+  - @webav/av-cliper@1.2.7
+  - @webav/internal-utils@1.2.7
+
+## 1.2.6
+
+### Patch Changes
+
+- Updated dependencies [5c4c275]
+  - @webav/av-cliper@1.2.6
+  - @webav/internal-utils@1.2.6
+
+## 1.2.5
+
+### Patch Changes
+
+- bf20e22: fix: AVCanvas.preFrame may cause flickering
+  - @webav/av-cliper@1.2.5
+  - @webav/internal-utils@1.2.5
+
 ## 1.2.4
 
 ### Patch Changes
